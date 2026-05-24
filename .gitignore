@@ -1,0 +1,19 @@
+# WorkBuddy
+.workbuddy/
+.codebuddy/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temp files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Planning files (dev only)
+findings.md
+progress.md
+task_plan.md

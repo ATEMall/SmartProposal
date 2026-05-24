@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SmartProposal v2.0 — ATEMall 在线绘图</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/base.css">
+</head>
+<body>
+<div class="sp-app">
+
+    <!-- ============ Header ============ -->
+    <header class="sp-header">
+        <!-- Logo -->
+        <div class="sp-header__logo">
+            <img class="sp-header__logo-img" src="素材/logo_atemall.png" alt="ATEMall" onerror="this.style.display='none'">
+            <div class="sp-header__logo-text"><span>SmartProposal</span> v2.0</div>
+        </div>
+
+        <!-- 顶部工具栏 -->
+        <div class="sp-toolbar" id="toolbar">
+            <!-- 撤销/重做 -->
+            <div class="sp-toolbar__group">
+                <button class="sp-toolbar__btn" id="btn-undo" onclick="SmartProposal.tools && SmartProposal.tools.undo()" title="撤销">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg>
+                    <span class="sp-tooltip">撤销 Ctrl+Z</span>
+                </button>
+                <button class="sp-toolbar__btn" id="btn-redo" onclick="SmartProposal.tools && SmartProposal.tools.redo()" title="重做">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 000 11H13"/></svg>
+                    <span class="sp-tooltip">重做 Ctrl+Y</span>
+                </button>
+            </div>
+
+            <!-- 复制/粘贴/删除 -->
+            <div class="sp-toolbar__group">
+                <button class="sp-toolbar__btn" onclick="SmartProposal.tools && SmartProposal.tools.copy()" title="复制">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                    <span class="sp-tooltip">复制 Ctrl+C</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.tools && SmartProposal.tools.paste()" title="粘贴">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                    <span class="sp-tooltip">粘贴 Ctrl+V</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.tools && SmartProposal.tools.deleteSelected()" title="删除">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    <span class="sp-tooltip">删除 Del</span>
+                </button>
+            </div>
+
+            <!-- 层级 -->
+            <div class="sp-toolbar__group">
+                <button class="sp-toolbar__btn" onclick="SmartProposal.tools && SmartProposal.tools.bringToFront()" title="置顶">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="14" width="20" height="8" rx="2"/><rect x="6" y="2" width="12" height="8" rx="2"/></svg>
+                    <span class="sp-tooltip">置顶</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.tools && SmartProposal.tools.sendToBack()" title="置底">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="6" y="14" width="12" height="8" rx="2"/></svg>
+                    <span class="sp-tooltip">置底</span>
+                </button>
+            </div>
+
+            <!-- 对齐 -->
+            <div class="sp-toolbar__group">
+                <button class="sp-toolbar__btn" onclick="SmartProposal.align && SmartProposal.align.alignSelected('left')" title="左对齐">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="4" x2="4" y2="20"/><rect x="8" y="5" width="12" height="4" rx="1"/><rect x="8" y="11" width="8" height="4" rx="1"/><rect x="8" y="17" width="10" height="4" rx="1"/></svg>
+                    <span class="sp-tooltip">左对齐</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.align && SmartProposal.align.alignSelected('center')" title="水平居中">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="4" x2="12" y2="20"/><rect x="4" y="5" width="16" height="4" rx="1"/><rect x="6" y="11" width="12" height="4" rx="1"/><rect x="5" y="17" width="14" height="4" rx="1"/></svg>
+                    <span class="sp-tooltip">水平居中</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.align && SmartProposal.align.alignSelected('right')" title="右对齐">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="20" y1="4" x2="20" y2="20"/><rect x="4" y="5" width="12" height="4" rx="1"/><rect x="8" y="11" width="8" height="4" rx="1"/><rect x="6" y="17" width="10" height="4" rx="1"/></svg>
+                    <span class="sp-tooltip">右对齐</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.align && SmartProposal.align.alignSelected('top')" title="顶对齐">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="4" x2="20" y2="4"/><rect x="5" y="8" width="4" height="12" rx="1"/><rect x="11" y="8" width="4" height="8" rx="1"/><rect x="17" y="8" width="4" height="10" rx="1"/></svg>
+                    <span class="sp-tooltip">顶对齐</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.align && SmartProposal.align.alignSelected('middle')" title="垂直居中">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="12" x2="20" y2="12"/><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="11" y="6" width="4" height="12" rx="1"/><rect x="17" y="5" width="4" height="14" rx="1"/></svg>
+                    <span class="sp-tooltip">垂直居中</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.align && SmartProposal.align.alignSelected('bottom')" title="底对齐">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="20"/><rect x="5" y="4" width="4" height="12" rx="1"/><rect x="11" y="8" width="4" height="8" rx="1"/><rect x="17" y="6" width="4" height="10" rx="1"/></svg>
+                    <span class="sp-tooltip">底对齐</span>
+                </button>
+            </div>
+
+            <!-- 属性栏开关 -->
+            <div class="sp-toolbar__group">
+                <button class="sp-toolbar__btn sp-toggle-prop-btn" id="btn-toggle-prop" onclick="togglePropPanel()" title="属性栏">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="10" y1="4" x2="10" y2="20"/></svg>
+                    <span class="sp-tooltip">属性栏</span>
+                </button>
+            </div>
+
+            <!-- 视图 -->
+            <div class="sp-toolbar__group">
+                <button class="sp-toolbar__btn" onclick="SmartProposal.model && SmartProposal.model.zoomAt(SmartProposal.model.getState().viewBox.x + SmartProposal.model.getState().viewBox.w/2, SmartProposal.model.getState().viewBox.y + SmartProposal.model.getState().viewBox.h/2, 0.8)" title="放大">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                    <span class="sp-tooltip">放大</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.model && SmartProposal.model.zoomAt(SmartProposal.model.getState().viewBox.x + SmartProposal.model.getState().viewBox.w/2, SmartProposal.model.getState().viewBox.y + SmartProposal.model.getState().viewBox.h/2, 1.25)" title="缩小">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                    <span class="sp-tooltip">缩小</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.model && SmartProposal.model.resetViewBox()" title="重置视图">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0"/><path d="M3 12h4m10 0h4"/><path d="M12 3v4m0 10v4"/></svg>
+                    <span class="sp-tooltip">重置 Ctrl+0</span>
+                </button>
+                <button class="sp-toolbar__btn" onclick="SmartProposal.model && SmartProposal.model.toggleSnapToGrid() && renderGridBtn()" id="grid-btn" title="网格吸附">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                    <span class="sp-tooltip">网格吸附</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 右侧操作 -->
+        <div style="display:flex; gap:8px; flex-shrink:0; align-items:center;">
+            <!-- 文件名 -->
+            <span id="page-name" style="font-size:12px; color:var(--text-secondary);">未命名</span>
+            <!-- 导出 -->
+            <div class="sp-export-wrap">
+                <button class="sp-btn sp-btn--primary" onclick="toggleExportMenu()" style="padding:6px 12px; font-size:13px;">
+                    导出
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="sp-export-menu" id="export-menu">
+                    <div class="sp-export-item" onclick="doExport('png')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        导出 PNG
+                    </div>
+                    <div class="sp-export-item" onclick="doExport('svg')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        导出 SVG
+                    </div>
+                    <div class="sp-export-item" onclick="doExport('json')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        保存 JSON
+                    </div>
+                    <div class="sp-export-item" onclick="document.getElementById('import-file').click()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        导入 JSON
+                    </div>
+                    <input type="file" id="import-file" accept=".json,.xml" style="display:none" onchange="doImport(this)">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============ Main ============ -->
+    <div class="sp-main">
+
+        <!-- ===== 左侧工具栏 ===== -->
+        <aside class="sp-left-panel" id="left-panel">
+
+            <!-- Pen 设置 -->
+            <div class="sp-tool-settings" id="pen-settings">
+                <div class="sp-tool-settings__title">画笔</div>
+                <div class="sp-color-row" id="pen-colors"></div>
+                <div class="sp-size-row" id="pen-sizes"></div>
+            </div>
+
+            <!-- Eraser 设置 -->
+            <div class="sp-tool-settings" id="eraser-settings">
+                <div class="sp-tool-settings__title">橡皮擦</div>
+                <div class="sp-size-row" id="eraser-sizes"></div>
+            </div>
+
+            <!-- 工具选择 -->
+            <div class="sp-panel-section">
+                <div class="sp-panel-title">工具</div>
+                <div class="sp-panel-grid">
+                    <button class="sp-tool-btn active" data-tool="select" onclick="switchTool('select')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-7 1-3 7z"/></svg>
+                        选择
+                    </button>
+                    <button class="sp-tool-btn" data-tool="hand" onclick="switchTool('hand')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 00-4 0v5M14 10V4a2 2 0 00-4 0v6m-4 4l.27-2.15A2 2 0 018.24 10H18a2 2 0 012 2v2a8 8 0 01-8 8H9a6 6 0 01-4.24-1.76L3 18"/></svg>
+                        平移
+                    </button>
+                    <button class="sp-tool-btn" data-tool="pen" onclick="switchTool('pen')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7H12v-3zM18 12l-8.5-8.5a2.12 2.12 0 00-3 0L3 11.5a2.12 2.12 0 000 3L11 23"/></svg>
+                        画笔
+                    </button>
+                    <button class="sp-tool-btn" data-tool="eraser" onclick="switchTool('eraser')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l12-12 5 5-9 9"/><path d="M6.0001 17.9999L10 14"/></svg>
+                        橡皮擦
+                    </button>
+                </div>
+            </div>
+
+            <!-- 基本图形 -->
+            <div class="sp-panel-section">
+                <div class="sp-panel-title">基本图形</div>
+                <div class="sp-panel-grid">
+                    <button class="sp-tool-btn" data-tool="rect" onclick="switchTool('rect')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/></svg>
+                        矩形
+                    </button>
+                    <button class="sp-tool-btn" data-tool="roundrect" onclick="switchTool('roundrect')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="5"/></svg>
+                        圆角矩形
+                    </button>
+                    <button class="sp-tool-btn" data-tool="circle" onclick="switchTool('circle')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="9" ry="7"/></svg>
+                        椭圆
+                    </button>
+                    <button class="sp-tool-btn" data-tool="diamond" onclick="switchTool('diamond')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,12 12,21 3,12"/></svg>
+                        菱形
+                    </button>
+                    <button class="sp-tool-btn" data-tool="triangle" onclick="switchTool('triangle')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,4 22,20 2,20"/></svg>
+                        三角形
+                    </button>
+                    <button class="sp-tool-btn" data-tool="hexagon" onclick="switchTool('hexagon')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 20,7 20,17 12,22 4,17 4,7"/></svg>
+                        六边形
+                    </button>
+                    <button class="sp-tool-btn" data-tool="text" onclick="switchTool('text')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                        文本
+                    </button>
+                    <button class="sp-tool-btn" data-tool="parallelogram" onclick="switchTool('parallelogram')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,5 21,5 19,19 3,19"/></svg>
+                        平行四边形
+                    </button>
+                    <button class="sp-tool-btn" data-tool="document" onclick="switchTool('document')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18v12c-3 0-3 2-6 2s-3-2-6-2-3 2-6 2V5z"/></svg>
+                        文档
+                    </button>
+                </div>
+            </div>
+
+            <!-- 流程图 -->
+            <div class="sp-panel-section">
+                <div class="sp-panel-title">流程图符号</div>
+                <div class="sp-panel-grid">
+                    <button class="sp-tool-btn" data-tool="flowchart_start" onclick="switchTool('flowchart_start')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="8" ry="5"/></svg>
+                        开始
+                    </button>
+                    <button class="sp-tool-btn" data-tool="flowchart_end" onclick="switchTool('flowchart_end')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="8" ry="5"/></svg>
+                        结束
+                    </button>
+                    <button class="sp-tool-btn" data-tool="flowchart_process" onclick="switchTool('flowchart_process')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="1"/></svg>
+                        处理
+                    </button>
+                    <button class="sp-tool-btn" data-tool="flowchart_decision" onclick="switchTool('flowchart_decision')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,3 21,12 12,21 3,12"/></svg>
+                        判断
+                    </button>
+                    <button class="sp-tool-btn" data-tool="flowchart_data" onclick="switchTool('flowchart_data')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,5 21,5 19,19 3,19"/></svg>
+                        数据
+                    </button>
+                    <button class="sp-tool-btn" data-tool="flowchart_document" onclick="switchTool('flowchart_document')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18v2c-2 1-2 3-4 3s-2-2-4-2-2 2-4 2-2-2-4-2V5z"/><line x1="3" y1="11" x2="21" y2="11" stroke="currentColor" stroke-width="1.5"/></svg>
+                        子流程
+                    </button>
+                </div>
+            </div>
+
+            <!-- 连接线 -->
+            <div class="sp-panel-section">
+                <div class="sp-panel-title">连接线</div>
+                <div class="sp-conn-types" id="conn-types"></div>
+            </div>
+        </aside>
+
+        <!-- ===== 画布 ===== -->
+        <section class="sp-canvas-area" id="canvas-area">
+            <svg id="sp-canvas" viewBox="0 0 1600 1200">
+                <defs></defs>
+            </svg>
+            <div class="sp-empty" id="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                <p>从左侧工具栏选择图形<br>或输入文字描述图表内容</p>
+            </div>
+
+            <!-- NL 输入条 -->
+            <div class="sp-nl-bar">
+                <div style="flex:1;">
+                    <input type="text" class="sp-nl-input" id="nl-input"
+                           placeholder="用逗号或箭头分隔节点，如：开始，分析，实施，结束"
+                           onkeydown="if(event.key==='Enter')processNL()">
+                    <div class="sp-nl-templates">
+                        <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="流程图：开始，需求分析，设计开发，测试验证，部署上线，结束">流程图</button>
+                        <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="思维导图：项目管理，时间规划，人员分配，风险控制，进度跟踪">思维导图</button>
+                        <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="循环图：计划，执行，检查，改进">循环图</button>
+                        <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="组织架构：CEO，技术部，市场部，财务部，人事部">组织架构</button>
+                        <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="对比图：方案A，方案B，方案C">对比图</button>
+                        <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="数据流：数据采集，数据清洗，数据分析，数据展示">数据流</button>
+                        <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="决策流程：开始，需求评审，是否通过，开发实施，方案驳回，重新提交">决策流程</button>
+                        <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="PDCA循环：计划，执行，检查，改进">PDCA循环</button>
+                    </div>
+                </div>
+                <button class="sp-btn sp-btn--primary" onclick="processNL()" style="padding:6px 14px; font-size:13px; flex-shrink:0;">生成</button>
+            </div>
+        </section>
+
+        <!-- ===== 右侧属性面板 ===== -->
+        <aside class="sp-right-panel hidden" id="prop-panel">
+            <div class="sp-prop-section" id="prop-geo-section">
+                <div class="sp-prop-title">位置与大小</div>
+                <div class="sp-prop-row">
+                    <div class="sp-prop-group">
+                        <label class="sp-prop-label">X</label>
+                        <input type="number" class="sp-prop-input" id="prop-x" oninput="updateShapeProp('x', this.value)">
+                    </div>
+                    <div class="sp-prop-group">
+                        <label class="sp-prop-label">Y</label>
+                        <input type="number" class="sp-prop-input" id="prop-y" oninput="updateShapeProp('y', this.value)">
+                    </div>
+                </div>
+                <div class="sp-prop-row">
+                    <div class="sp-prop-group">
+                        <label class="sp-prop-label">宽</label>
+                        <input type="number" class="sp-prop-input" id="prop-w" oninput="updateShapeProp('width', this.value)">
+                    </div>
+                    <div class="sp-prop-group">
+                        <label class="sp-prop-label">高</label>
+                        <input type="number" class="sp-prop-input" id="prop-h" oninput="updateShapeProp('height', this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="sp-prop-section" id="prop-fill-section">
+                <div class="sp-prop-title">填充与线条</div>
+                <div class="sp-prop-group" style="margin-bottom:8px;">
+                    <label class="sp-prop-label">填充颜色</label>
+                    <div class="sp-prop-color">
+                        <div class="sp-prop-color-swatch active" style="background:#ffffff" onclick="setFillColor('#ffffff')"></div>
+                        <div class="sp-prop-color-swatch" style="background:#fee2e2" onclick="setFillColor('#fee2e2')"></div>
+                        <div class="sp-prop-color-swatch" style="background:#e63946" onclick="setFillColor('#e63946')"></div>
+                        <div class="sp-prop-color-swatch" style="background:#1a73e8" onclick="setFillColor('#1a73e8')"></div>
+                        <div class="sp-prop-color-swatch" style="background:#188038" onclick="setFillColor('#188038')"></div>
+                        <div class="sp-prop-color-swatch" style="background:#f9ab00" onclick="setFillColor('#f9ab00')"></div>
+                        <div class="sp-prop-color-swatch" style="background:#000000" onclick="setFillColor('#000000')"></div>
+                        <input type="color" class="sp-prop-input" id="prop-fill-color" style="width:36px; height:22px; padding:0;" oninput="setFillColor(this.value)">
+                    </div>
+                </div>
+                <div class="sp-prop-group">
+                    <label class="sp-prop-label">线条颜色</label>
+                    <div class="sp-prop-color">
+                        <div class="sp-prop-color-swatch" style="background:#6b7280" onclick="setStrokeColor('#6b7280')"></div>
+                        <div class="sp-prop-color-swatch" style="background:#e63946" onclick="setStrokeColor('#e63946')"></div>
+                        <div class="sp-prop-color-swatch" style="background:#1a73e8" onclick="setStrokeColor('#1a73e8')"></div>
+                        <div class="sp-prop-color-swatch" style="background:#188038" onclick="setStrokeColor('#188038')"></div>
+                        <div class="sp-prop-color-swatch" style="background:#000000" onclick="setStrokeColor('#000000')"></div>
+                        <input type="color" class="sp-prop-input" id="prop-stroke-color" style="width:36px; height:22px; padding:0;" oninput="setStrokeColor(this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="sp-prop-section" id="prop-text-section">
+                <div class="sp-prop-title">文本</div>
+                <div class="sp-prop-group">
+                    <label class="sp-prop-label">内容</label>
+                    <input type="text" class="sp-prop-input" id="prop-text" placeholder="输入文本内容..." oninput="updateTextProp(this.value)">
+                </div>
+                <div class="sp-prop-row" style="margin-top:8px;">
+                    <div class="sp-prop-group">
+                        <label class="sp-prop-label">字号</label>
+                        <input type="number" class="sp-prop-input" id="prop-fontsize" value="14" min="8" max="72" oninput="updateTextStyle('fontSize', this.value)">
+                    </div>
+                    <div class="sp-prop-group">
+                        <label class="sp-prop-label">对齐</label>
+                        <select class="sp-prop-input" id="prop-textalign" onchange="updateTextStyle('textAlign', this.value)">
+                            <option value="left">左对齐</option>
+                            <option value="center" selected>居中</option>
+                            <option value="right">右对齐</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sp-prop-section">
+                <div class="sp-prop-title">操作</div>
+                <button class="sp-delete-btn" onclick="deleteSelected()">🗑 删除图形 Del</button>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<!-- 右键菜单 -->
+<div class="sp-context-menu" id="ctx-menu">
+    <div class="sp-context-menu__item" onclick="ctxBringToFront()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="14" width="20" height="8" rx="2"/><rect x="6" y="2" width="12" height="8" rx="2"/></svg>
+        置于顶层
+    </div>
+    <div class="sp-context-menu__item" onclick="ctxSendToBack()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="6" y="14" width="12" height="8" rx="2"/></svg>
+        置于底层
+    </div>
+    <div class="sp-context-menu__divider"></div>
+    <div class="sp-context-menu__item" onclick="ctxDuplicate()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        复制 Ctrl+D
+    </div>
+    <div class="sp-context-menu__item" onclick="ctxCopyStyle()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        复制格式
+    </div>
+    <div class="sp-context-menu__item" onclick="ctxPasteStyle()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        粘贴格式
+    </div>
+    <div class="sp-context-menu__divider"></div>
+    <div class="sp-context-menu__item danger" onclick="ctxDelete()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+        删除
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="sp-toast" id="sp-toast"></div>
+
+<!-- 文本编辑器 -->
+<div class="sp-text-editor-overlay" id="text-editor-overlay">
+    <div class="sp-text-editor-box">
+        <h3>编辑文本</h3>
+        <textarea id="text-editor-input" placeholder="输入文本..."></textarea>
+        <div class="sp-text-editor-actions">
+            <button class="sp-btn sp-btn--secondary" onclick="closeTextEditor()">取消</button>
+            <button class="sp-btn sp-btn--primary" onclick="applyTextEditor()">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ Scripts ============ -->
+<script src="assets/js/model.js"></script>
+<script src="assets/js/renderer.js"></script>
+<script src="assets/js/tools.js"></script>
+<script>
+(function() {
+    'use strict';
+
+    // ============================================================
+    // 初始化
+    // ============================================================
+    SmartProposal.model.on('stateChanged', onStateChanged);
+    SmartProposal.model.on('stateRestored', onStateRestored);
+
+    SmartProposal.renderer.init('sp-canvas');
+    SmartProposal.tools.init('sp-canvas');
+
+    // 选中变化时刷新属性面板内容（不自动显示/隐藏）
+    SmartProposal.tools.onSelectionChanged(function(shapeIds, connIds) {
+        var panel = document.getElementById('prop-panel');
+        if (panel.classList.contains('hidden')) return; // 面板未打开，不做任何事
+        if (shapeIds.length === 1) {
+            var shape = SmartProposal.model.getShapeById(shapeIds[0]);
+            if (shape) showPropPanel(shape);
+        }
+        // 选中多个或不选中时不关闭面板，只清空内容等待用户操作
+    });
+
+    // 默认填充 NL 输入示例
+    (function() {
+        var firstBtn = document.querySelector('.sp-nl-template-btn');
+        if (firstBtn) {
+            var defaultExample = firstBtn.getAttribute('data-example');
+            if (defaultExample) {
+                document.getElementById('nl-input').value = defaultExample;
+            }
+        }
+    })();
+
+    // 初始化画笔面板
+    initPenPanel();
+    initEraserPanel();
+    initConnTypes();
+
+    // 自动保存
+    setInterval(autoSave, 30000);
+
+    // 加载自动保存
+    loadAutoSave();
+
+    updateUndoRedoBtn();
+
+    // ============================================================
+    // 事件回调
+    // ============================================================
+    function onStateChanged(state) {
+        var hasContent = state.shapes.length > 0 || state.connectors.length > 0;
+        document.getElementById('empty-state').style.display = hasContent ? 'none' : '';
+        updateUndoRedoBtn();
+    }
+
+    function onStateRestored(state) {
+        var hasContent = state.shapes.length > 0 || state.connectors.length > 0;
+        document.getElementById('empty-state').style.display = hasContent ? 'none' : '';
+        updateUndoRedoBtn();
+        // 隐藏属性面板
+        document.getElementById('prop-panel').classList.add('hidden');
+    }
+
+    function updateUndoRedoBtn() {
+        var btnU = document.getElementById('btn-undo');
+        var btnR = document.getElementById('btn-redo');
+        if (btnU) btnU.disabled = !SmartProposal.model.canUndo();
+        if (btnR) btnR.disabled = !SmartProposal.model.canRedo();
+    }
+
+    // ============================================================
+    // 工具切换
+    // ============================================================
+    function switchTool(tool) {
+        SmartProposal.tools.setTool(tool);
+        document.querySelectorAll('.sp-tool-btn').forEach(function(b) {
+            b.classList.toggle('active', b.getAttribute('data-tool') === tool);
+        });
+        // 显示/隐藏工具设置面板
+        document.getElementById('pen-settings').classList.toggle('show', tool === 'pen');
+        document.getElementById('eraser-settings').classList.toggle('show', tool === 'eraser');
+        // 切换工具时清空选择
+        SmartProposal.tools.clearSelection();
+        document.getElementById('prop-panel').classList.add('hidden');
+    }
+
+    // ============================================================
+    // 连接线类型
+    // ============================================================
+    function initConnTypes() {
+        var container = document.getElementById('conn-types');
+        var types = [
+            { id: 'straight',      label: '直线箭头',    svg: '<line x1="2" y1="8" x2="36" y2="8" stroke="currentColor" stroke-width="1.5"/><polygon points="33,5 38,8 33,11" fill="currentColor"/>' },
+            { id: 'dashed',         label: '虚线箭头',    svg: '<line x1="2" y1="8" x2="36" y2="8" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4,3"/><polygon points="33,5 38,8 33,11" fill="currentColor"/>' },
+            { id: 'dotted',         label: '点线箭头',    svg: '<line x1="2" y1="8" x2="36" y2="8" stroke="currentColor" stroke-width="2" stroke-dasharray="1.5,3" stroke-linecap="round"/><polygon points="33,5 38,8 33,11" fill="currentColor"/>' },
+            { id: 'bidirectional', label: '双向箭头',    svg: '<line x1="4" y1="8" x2="34" y2="8" stroke="currentColor" stroke-width="1.5"/><polygon points="7,5 2,8 7,11" fill="currentColor"/><polygon points="33,5 38,8 33,11" fill="currentColor"/>' },
+            { id: 'noarrow',        label: '无箭头',      svg: '<line x1="2" y1="8" x2="38" y2="8" stroke="currentColor" stroke-width="1.5"/>' },
+            { id: 'curved',         label: '曲线箭头',    svg: '<path d="M2 13 C10 2 30 2 36 8" stroke="currentColor" stroke-width="1.5" fill="none"/><polygon points="33,5 38,8 33,11" fill="currentColor"/>' },
+            { id: 'elbow',          label: '折线箭头',    svg: '<polyline points="2,13 20,13 20,3 36,3" stroke="currentColor" stroke-width="1.5" fill="none"/><polygon points="33,0 38,3 33,6" fill="currentColor"/>' }
+        ];
+
+        types.forEach(function(t) {
+            var btn = document.createElement('button');
+            btn.className = 'sp-conn-type-btn';
+            btn.setAttribute('data-conn-type', t.id);
+            btn.innerHTML = '<svg viewBox="0 0 40 16" fill="none">' + t.svg + '</svg><span>' + t.label + '</span>';
+            btn.onclick = function() {
+                SmartProposal.tools.setConnectorType(t.id);
+                document.querySelectorAll('.sp-conn-type-btn').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    // ============================================================
+    // 画笔面板
+    // ============================================================
+    function initPenPanel() {
+        var colors = ['#e34c26','#1a73e8','#188038','#f9ab00','#d23333','#6a1b9a','#000000','#ffffff'];
+        var sizes = [1, 2, 4, 6, 8];
+        var colorEl = document.getElementById('pen-colors');
+        var sizeEl = document.getElementById('pen-sizes');
+
+        colors.forEach(function(c) {
+            var sw = document.createElement('div');
+            sw.className = 'sp-color-swatch' + (c === '#e34c26' ? ' active' : '');
+            sw.style.background = c;
+            sw.onclick = function() {
+                SmartProposal.tools.setPenColor(c);
+                document.querySelectorAll('#pen-colors .sp-color-swatch').forEach(function(s) { s.classList.remove('active'); });
+                sw.classList.add('active');
+            };
+            colorEl.appendChild(sw);
+        });
+
+        sizes.forEach(function(sz) {
+            var btn = document.createElement('button');
+            btn.className = 'sp-size-btn' + (sz === 2 ? ' active' : '');
+            var dot = document.createElement('div');
+            dot.className = 'sp-size-dot';
+            dot.style.width = dot.style.height = Math.min(sz * 3 + 4, 24) + 'px';
+            btn.appendChild(dot);
+            btn.onclick = function() {
+                SmartProposal.tools.setPenWidth(sz);
+                document.querySelectorAll('#pen-sizes .sp-size-btn').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+            };
+            sizeEl.appendChild(btn);
+        });
+    }
+
+    function initEraserPanel() {
+        var sizes = [8, 16, 24, 40];
+        var el = document.getElementById('eraser-sizes');
+        sizes.forEach(function(sz) {
+            var btn = document.createElement('button');
+            btn.className = 'sp-size-btn' + (sz === 16 ? ' active' : '');
+            btn.textContent = sz;
+            btn.style.fontSize = '10px';
+            btn.onclick = function() {
+                SmartProposal.tools.setEraserSize(sz);
+                document.querySelectorAll('#eraser-sizes .sp-size-btn').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+            };
+            el.appendChild(btn);
+        });
+    }
+
+    // ============================================================
+    // 属性面板
+    // ============================================================
+    SmartProposal.model.on('shapeUpdated', function(shape) {
+        var panel = document.getElementById('prop-panel');
+        if (panel.classList.contains('hidden')) return;
+        var ids = SmartProposal.tools.getSelectedIds();
+        if (ids.length === 1 && ids[0] === shape.id) {
+            showPropPanel(shape);
+        }
+    });
+
+    SmartProposal.model.on('shapeAdded', function(shape) {
+        var panel = document.getElementById('prop-panel');
+        if (panel.classList.contains('hidden')) return;
+        var ids = SmartProposal.tools.getSelectedIds();
+        if (ids.length === 1 && ids[0] === shape.id) {
+            showPropPanel(shape);
+        }
+    });
+
+    function togglePropPanel() {
+        var panel = document.getElementById('prop-panel');
+        var btn = document.getElementById('btn-toggle-prop');
+        if (panel.classList.contains('hidden')) {
+            // 打开面板，填充当前选中图形的属性
+            var ids = SmartProposal.tools.getSelectedIds();
+            if (ids.length === 1) {
+                var shape = SmartProposal.model.getShapeById(ids[0]);
+                if (shape) showPropPanel(shape);
+            }
+            panel.classList.remove('hidden');
+            btn.classList.add('active');
+        } else {
+            panel.classList.add('hidden');
+            btn.classList.remove('active');
+        }
+    }
+    window.togglePropPanel = togglePropPanel;
+
+    function showPropPanel(shape) {
+        var panel = document.getElementById('prop-panel');
+        panel.classList.remove('hidden');
+        document.getElementById('prop-x').value = Math.round(shape.x);
+        document.getElementById('prop-y').value = Math.round(shape.y);
+        document.getElementById('prop-w').value = Math.round(shape.width);
+        document.getElementById('prop-h').value = Math.round(shape.height);
+        document.getElementById('prop-fill-color').value = shape.style.fill || '#ffffff';
+        document.getElementById('prop-stroke-color').value = shape.style.stroke || '#6b7280';
+        document.getElementById('prop-text').value = shape.text || '';
+        document.getElementById('prop-fontsize').value = shape.textStyle?.fontSize || 14;
+        document.getElementById('prop-textalign').value = shape.textStyle?.textAlign || 'center';
+
+        // 更新色块选中状态
+        document.querySelectorAll('#prop-fill-section .sp-prop-color-swatch').forEach(function(s) {
+            s.classList.toggle('active', s.style.background === shape.style.fill);
+        });
+    }
+
+    function updateShapeProp(key, val) {
+        var ids = SmartProposal.tools.getSelectedIds();
+        if (ids.length === 0) return;
+        SmartProposal.model.pushState();
+        ids.forEach(function(id) {
+            var shape = SmartProposal.model.getShapeById(id);
+            if (!shape) return;
+            if (key === 'width') {
+                SmartProposal.model.updateShape(id, {width: parseFloat(val)});
+            } else if (key === 'height') {
+                SmartProposal.model.updateShape(id, {height: parseFloat(val)});
+            } else if (key === 'x') {
+                SmartProposal.model.updateShape(id, {x: parseFloat(val)});
+            } else if (key === 'y') {
+                SmartProposal.model.updateShape(id, {y: parseFloat(val)});
+            }
+        });
+        // 重新显示面板
+        if (ids.length === 1) {
+            var shape = SmartProposal.model.getShapeById(ids[0]);
+            if (shape) showPropPanel(shape);
+        }
+    }
+
+    function setFillColor(color) {
+        var ids = SmartProposal.tools.getSelectedIds();
+        if (ids.length === 0) return;
+        SmartProposal.model.pushState();
+        ids.forEach(function(id) {
+            SmartProposal.model.updateShape(id, { style: { fill: color } });
+        });
+    }
+
+    function setStrokeColor(color) {
+        var ids = SmartProposal.tools.getSelectedIds();
+        if (ids.length === 0) return;
+        SmartProposal.model.pushState();
+        ids.forEach(function(id) {
+            SmartProposal.model.updateShape(id, { style: { stroke: color } });
+        });
+    }
+
+    function updateTextProp(text) {
+        var ids = SmartProposal.tools.getSelectedIds();
+        if (ids.length === 0) return;
+        SmartProposal.model.pushState();
+        ids.forEach(function(id) {
+            SmartProposal.model.updateShape(id, { text: text });
+        });
+    }
+
+    function updateTextStyle(key, val) {
+        var ids = SmartProposal.tools.getSelectedIds();
+        if (ids.length === 0) return;
+        SmartProposal.model.pushState();
+        ids.forEach(function(id) {
+            var shape = SmartProposal.model.getShapeById(id);
+            if (shape) {
+                var ts = Object.assign({}, shape.textStyle || {});
+                ts[key] = key === 'fontSize' ? parseInt(val) : val;
+                SmartProposal.model.updateShape(id, { textStyle: ts });
+            }
+        });
+    }
+
+    function deleteSelected() {
+        var ids = SmartProposal.tools.getSelectedIds();
+        var cids = SmartProposal.tools.getSelectedConnIds();
+        if (ids.length === 0 && cids.length === 0) return;
+        SmartProposal.model.pushState();
+        ids.forEach(function(id) { SmartProposal.model.deleteShape(id); });
+        cids.forEach(function(id) { SmartProposal.model.deleteConnector(id); });
+        SmartProposal.tools.clearSelection();
+        document.getElementById('prop-panel').classList.add('hidden');
+    }
+
+    // ============================================================
+    // 文本编辑器
+    // ============================================================
+    var _editingShapeId = null;
+
+    SmartProposal.textEditor = {
+        start: function(id) {
+            _editingShapeId = id;
+            var shape = SmartProposal.model.getShapeById(id);
+            document.getElementById('text-editor-input').value = shape ? (shape.text || '') : '';
+            document.getElementById('text-editor-overlay').classList.add('show');
+            document.getElementById('text-editor-input').focus();
+        }
+    };
+
+    function closeTextEditor() {
+        document.getElementById('text-editor-overlay').classList.remove('show');
+        _editingShapeId = null;
+    }
+
+    function applyTextEditor() {
+        if (!_editingShapeId) return;
+        var text = document.getElementById('text-editor-input').value;
+        SmartProposal.model.pushState();
+        SmartProposal.model.updateShape(_editingShapeId, { text: text });
+        closeTextEditor();
+    }
+
+    // ESC 关闭文本编辑器
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeTextEditor();
+            document.getElementById('ctx-menu').classList.remove('show');
+        }
+    });
+
+    // ============================================================
+    // 右键菜单
+    // ============================================================
+    SmartProposal.contextMenu = {
+        show: function(x, y, selectedIds) {
+            var menu = document.getElementById('ctx-menu');
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            menu.classList.add('show');
+            menu._selectedIds = selectedIds;
+        },
+        showToast: function(msg) { showToast(msg); }
+    };
+
+    document.addEventListener('click', function() {
+        document.getElementById('ctx-menu').classList.remove('show');
+    });
+
+    function ctxBringToFront() {
+        var ids = document.getElementById('ctx-menu')._selectedIds || [];
+        ids.forEach(function(id) { SmartProposal.model.bringToFront(id); });
+        SmartProposal.model.pushState();
+    }
+
+    function ctxSendToBack() {
+        var ids = document.getElementById('ctx-menu')._selectedIds || [];
+        ids.forEach(function(id) { SmartProposal.model.sendToBack(id); });
+        SmartProposal.model.pushState();
+    }
+
+    function ctxDuplicate() {
+        var ids = document.getElementById('ctx-menu')._selectedIds || [];
+        SmartProposal.model.pushState();
+        ids.forEach(function(id) { SmartProposal.model.cloneShape(id); });
+    }
+
+    function ctxDelete() {
+        var ids = document.getElementById('ctx-menu')._selectedIds || [];
+        SmartProposal.model.pushState();
+        ids.forEach(function(id) { SmartProposal.model.deleteShape(id); });
+        SmartProposal.tools.clearSelection();
+        document.getElementById('prop-panel').classList.add('hidden');
+    }
+
+    var _copiedStyle = null;
+    function ctxCopyStyle() {
+        var ids = document.getElementById('ctx-menu')._selectedIds || [];
+        if (ids.length > 0) {
+            var s = SmartProposal.model.getShapeById(ids[0]);
+            if (s) _copiedStyle = { style: Object.assign({}, s.style), textStyle: Object.assign({}, s.textStyle || {}) };
+            showToast('样式已复制');
+        }
+    }
+
+    function ctxPasteStyle() {
+        if (!_copiedStyle) { showToast('无复制样式'); return; }
+        var ids = document.getElementById('ctx-menu')._selectedIds || [];
+        SmartProposal.model.pushState();
+        ids.forEach(function(id) {
+            SmartProposal.model.updateShape(id, {
+                style: Object.assign({}, _copiedStyle.style),
+                textStyle: Object.assign({}, _copiedStyle.textStyle)
+            });
+        });
+        showToast('样式已粘贴');
+    }
+
+    // ============================================================
+    // Toast
+    // ============================================================
+    var _toastTimer = null;
+    function showToast(msg) {
+        var el = document.getElementById('sp-toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2000);
+    }
+    window.showToast = showToast;
+
+    // ============================================================
+    // 导出菜单
+    // ============================================================
+    function toggleExportMenu() {
+        document.getElementById('export-menu').classList.toggle('show');
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.sp-export-wrap')) {
+            document.getElementById('export-menu').classList.remove('show');
+        }
+    });
+
+    // ============================================================
+    // 导出功能
+    // ============================================================
+    async function doExport(format) {
+        document.getElementById('export-menu').classList.remove('show');
+        if (format === 'png') {
+            var dataUrl = await SmartProposal.renderer.exportPNG(2);
+            if (dataUrl) {
+                var a = document.createElement('a');
+                a.href = dataUrl;
+                a.download = 'diagram.png';
+                a.click();
+                showToast('PNG 已导出');
+            } else {
+                showToast('PNG 导出失败');
+            }
+        } else if (format === 'svg') {
+            var svgStr = SmartProposal.renderer.exportSVGString();
+            var blob = new Blob([svgStr], { type: 'image/svg+xml' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'diagram.svg';
+            a.click();
+            showToast('SVG 已导出');
+        } else if (format === 'json') {
+            var json = SmartProposal.model.exportJSON();
+            var blob = new Blob([json], { type: 'application/json' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'diagram.json';
+            a.click();
+            showToast('JSON 已保存');
+        }
+    }
+
+    function doImport(input) {
+        var file = input.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var ok = SmartProposal.model.importJSON(e.target.result);
+            if (ok) {
+                showToast('已导入：' + file.name);
+                document.getElementById('page-name').textContent = SmartProposal.model.getState().pageName;
+            } else {
+                showToast('导入失败：格式错误');
+            }
+        };
+        reader.readAsText(file);
+        input.value = '';
+    }
+
+    // ============================================================
+    // 自动保存 / 恢复
+    // ============================================================
+    function autoSave() {
+        try {
+            var state = SmartProposal.model.exportJSON();
+            localStorage.setItem('sp_autosave', state);
+        } catch(e) {}
+    }
+
+    function loadAutoSave() {
+        try {
+            var saved = localStorage.getItem('sp_autosave');
+            if (saved) {
+                var ok = SmartProposal.model.importJSON(saved);
+                if (ok) showToast('已恢复上次内容');
+            }
+        } catch(e) {}
+    }
+
+    // ============================================================
+    // 自然语言生成（增强版，继承 v1.4 完整逻辑）
+    // ============================================================
+
+    // 辅助：从文本中提取数量提示，如"三个"→3、"5步"→5
+    function _nlExtractCount(text) {
+        var cnMap = { '一':1, '二':2, '三':3, '四':4, '五':5, '六':6, '七':7, '八':8, '九':9, '十':10 };
+        var m = text.match(/([一二三四五六七八九十]|\d+)\s*[个步层级阶段条项]/);
+        if (m) return cnMap[m[1]] || parseInt(m[1]);
+        return null;
+    }
+
+    // 辅助：拆分输入文本为节点标签
+    function _nlParseNodes(text) {
+        var s = text
+            .replace(/^(思维导图|脑图|流程图|组织架构|架构图|对比图|循环图|循环流程|比较图)[：:，,\s]*/i, '')
+            .replace(/[，。！？；：""''【】（）《》]/g, ',')
+            .replace(/\s*(->|→|>|=>)\s*/g, ',')
+            .replace(/\s+/g, ' ').trim();
+        // 尝试：编号格式如"第一步xxx第二步xxx"
+        var stepPat = /第[一二三四五六七八九十\d]+[步骤阶段层]/g;
+        if (stepPat.test(s)) {
+            var parts = s.split(/第[一二三四五六七八九十\d]+[步骤阶段层]/);
+            var labels = parts.map(function(p) { return p.replace(/[,，、:：\s]+/g,'').slice(0,12); }).filter(Boolean);
+            if (labels.length >= 2) return labels;
+        }
+        // 尝试：逗号/分隔符分隔
+        var nodes = s.split(/[,、;]+/).map(function(p) { return p.trim().slice(0,15); }).filter(Boolean);
+        if (nodes.length >= 2) return nodes;
+        return null;
+    }
+
+    // 生成流程图（自上而下）
+    function _nlGenFlow(labels, hasDecision) {
+        var cxBase = 500, nodeW = 140, nodeH = 52, diamondH = 72, gap = 100;
+        var ids = [], y = 120;
+        SmartProposal.model.pushState();
+        labels.forEach(function(label, i) {
+            var type = 'rect';
+            if (i === 0 || i === labels.length - 1) type = 'roundrect';
+            else if (hasDecision && (label.indexOf('判断') !== -1 || label.indexOf('是否') !== -1 ||
+                label.indexOf('检查') !== -1 || label.indexOf('验证') !== -1 || label.indexOf('?') !== -1 ||
+                label.indexOf('？') !== -1)) type = 'diamond';
+            var h = type === 'diamond' ? diamondH : nodeH;
+            var shape = SmartProposal.model.createShape(type, cxBase, y + h / 2, nodeW, h);
+            SmartProposal.model.updateShape(shape.id, { text: label });
+            ids.push(shape.id);
+            y += h + gap;
+        });
+        // 创建连接线（自上而下：源底部→目标顶部）
+        for (var i = 0; i < ids.length - 1; i++) {
+            SmartProposal.model.createConnector(ids[i], ids[i+1], 2, 0, 'straight');
+        }
+    }
+
+    // 生成对比图（水平并排）
+    function _nlGenCompare(labels) {
+        var cy = 300, nodeW = 130, nodeH = 60, gapX = 170;
+        var totalW = (labels.length - 1) * gapX;
+        var startX = 500 - totalW / 2;
+        SmartProposal.model.pushState();
+        labels.forEach(function(label, i) {
+            var shape = SmartProposal.model.createShape('rect', startX + i * gapX, cy, nodeW, nodeH);
+            SmartProposal.model.updateShape(shape.id, { text: label });
+        });
+    }
+
+    // 生成思维导图（中心+分支）
+    function _nlGenMind(centerLabel, branches) {
+        var cx = 320, cy = 320;
+        var nodeW = 120, nodeH = 52, gapY = 80;
+        var startY = cy - ((branches.length - 1) * gapY) / 2;
+        var branchX = cx + 240;
+        SmartProposal.model.pushState();
+        var center = SmartProposal.model.createShape('circle', cx, cy, 130, 80);
+        SmartProposal.model.updateShape(center.id, { text: centerLabel });
+
+        var branchIds = [];
+        branches.forEach(function(label, i) {
+            var by = startY + i * gapY;
+            var bid = SmartProposal.model.createShape('roundrect', branchX, by, nodeW, nodeH);
+            SmartProposal.model.updateShape(bid.id, { text: label });
+            branchIds.push(bid.id);
+        });
+        // 创建连接线（中心右侧→分支左侧）
+        branchIds.forEach(function(bid) {
+            SmartProposal.model.createConnector(center.id, bid, 1, 3, 'curved');
+        });
+    }
+
+    // 生成循环图
+    function _nlGenCycle(labels) {
+        var cx = 500, cy = 320, r = 200;
+        var angleStep = (Math.PI * 2) / labels.length;
+        var ids = [], pos = [];
+        SmartProposal.model.pushState();
+        labels.forEach(function(label, i) {
+            var a = -angleStep * i - Math.PI / 2;
+            var bx = cx + r * Math.cos(a);
+            var by = cy + r * Math.sin(a);
+            var id = SmartProposal.model.createShape('roundrect', bx, by, 120, 52);
+            SmartProposal.model.updateShape(id.id, { text: label });
+            ids.push(id.id);
+            pos.push({ x: bx, y: by, a: a });
+        });
+        // 创建连接线（形成闭环）
+        for (var i = 0; i < ids.length; i++) {
+            var j = (i + 1) % ids.length;
+            var p1 = pos[i], p2 = pos[j];
+            var dx = p2.x - p1.x, dy = p2.y - p1.y;
+            var sp, ep;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                sp = dx > 0 ? 3 : 2;
+                ep = dx > 0 ? 2 : 3;
+            } else {
+                sp = dy > 0 ? 1 : 0;
+                ep = dy > 0 ? 0 : 1;
+            }
+            SmartProposal.model.createConnector(ids[i], ids[j], sp, ep, 'straight');
+        }
+    }
+
+    // 生成组织架构图（两层树形）
+    function _nlGenOrg(rootLabel, children) {
+        var cx = 500, rootY = 100, childY = 280;
+        var nodeW = 130, nodeH = 52, gapX = 170;
+        var totalW = (children.length - 1) * gapX;
+        var startX = cx - totalW / 2;
+
+        SmartProposal.model.pushState();
+        var rootId = SmartProposal.model.createShape('roundrect', cx, rootY, 150, 58);
+        SmartProposal.model.updateShape(rootId.id, { text: rootLabel });
+
+        var childIds = [];
+        children.forEach(function(label, i) {
+            var cid = SmartProposal.model.createShape('rect', startX + i * gapX, childY, nodeW, nodeH);
+            SmartProposal.model.updateShape(cid.id, { text: label });
+            childIds.push(cid.id);
+        });
+        // 创建连接线（根底部→子顶部）
+        childIds.forEach(function(cid) {
+            SmartProposal.model.createConnector(rootId.id, cid, 2, 0, 'straight');
+        });
+    }
+
+    // 主入口
+    function processNL() {
+        var input = document.getElementById('nl-input').value.trim();
+        if (!input) { showToast('请先输入描述内容'); return; }
+
+        var btn = document.querySelector('.sp-btn--primary');
+        if (!btn) btn = document.querySelector('[onclick="processNL()"]');
+        var origText = btn ? btn.textContent : '';
+        if (btn) { btn.textContent = '生成中...'; btn.disabled = true; }
+
+        setTimeout(function() {
+            try {
+                document.getElementById('empty-state').style.display = 'none';
+                var text = input;
+
+                // ---- 检测图表类型 ----
+                var isMind = /思维|脑图|mind|主题|分支/.test(text);
+                var isCycle = /循环|PDCA|pdca|迭代|轮回|周期|闭环/.test(text);
+                var isOrg = /组织|架构|汇报|下级|部门|树形|上下级/.test(text);
+                var isCompare = /比较|对比|VS|vs|优劣|区别|差异/.test(text);
+                var isFlow = /流程|步骤|阶段|流水|管道|pipeline|过程|环节|数据流/.test(text);
+                var hasDecision = /判断|是否|检查|验证|决策|条件/.test(text);
+
+                // ---- 尝试提取节点 ----
+                var parsedNodes = _nlParseNodes(text);
+                var countHint = _nlExtractCount(text);
+
+                if (isMind) {
+                    if (parsedNodes && parsedNodes.length >= 2) {
+                        _nlGenMind(parsedNodes[0], parsedNodes.slice(1));
+                    } else {
+                        var n = countHint || 4, branches = [];
+                        for (var i = 1; i <= n; i++) branches.push('分支' + i);
+                        _nlGenMind('核心主题', branches);
+                    }
+                } else if (isCycle) {
+                    if (parsedNodes && parsedNodes.length >= 2) {
+                        _nlGenCycle(parsedNodes);
+                    } else {
+                        var n = countHint || 4, steps = [];
+                        for (var i = 1; i <= n; i++) steps.push('阶段' + i);
+                        _nlGenCycle(steps);
+                    }
+                } else if (isOrg) {
+                    if (parsedNodes && parsedNodes.length >= 2) {
+                        _nlGenOrg(parsedNodes[0], parsedNodes.slice(1));
+                    } else {
+                        var n = countHint || 3, children = [];
+                        for (var i = 1; i <= n; i++) children.push('部门' + i);
+                        _nlGenOrg('总负责人', children);
+                    }
+                } else if (isCompare) {
+                    if (parsedNodes && parsedNodes.length >= 2) {
+                        _nlGenCompare(parsedNodes);
+                    } else {
+                        _nlGenCompare(['方案A', '方案B', '方案C']);
+                    }
+                } else {
+                    if (parsedNodes && parsedNodes.length >= 2) {
+                        _nlGenFlow(parsedNodes, hasDecision);
+                    } else {
+                        var n = countHint || 4, labels = [];
+                        if (isFlow || n >= 3) {
+                            labels.push('开始');
+                            for (var i = 1; i <= n - 2; i++) labels.push('步骤' + i);
+                            labels.push('结束');
+                        } else {
+                            for (var i = 1; i <= n; i++) labels.push('节点' + i);
+                        }
+                        _nlGenFlow(labels, hasDecision);
+                    }
+                }
+
+                document.getElementById('nl-input').value = '';
+                showToast('图表已生成 ✓');
+            } catch(err) {
+                showToast('生成失败: ' + err.message);
+                console.error('processNL error:', err);
+            }
+            if (btn) { btn.textContent = origText; btn.disabled = false; }
+        }, 80);
+    }
+
+    function setNLTpl(el) {
+        // 支持两种调用方式：setNLTpl(this) 和 setNLTpl('模板名')
+        if (typeof el === 'string') {
+            // 旧式调用，根据名称查找按钮
+            var name = el;
+            el = document.querySelector('.sp-nl-template-btn[data-example*="' + name + '："]') ||
+                 document.querySelector('.sp-nl-template-btn:nth-child(1)');
+        }
+        var example = el && el.getAttribute('data-example');
+        if (example) {
+            document.getElementById('nl-input').value = example;
+        } else {
+            document.getElementById('nl-input').value = (el ? el.textContent : '流程') + '：';
+        }
+        document.getElementById('nl-input').focus();
+    }
+
+    // ============================================================
+    // 网格按钮状态
+    // ============================================================
+    function renderGridBtn() {
+        var state = SmartProposal.model.getState();
+        var btn = document.getElementById('grid-btn');
+        if (btn) {
+            btn.style.color = state.snapToGrid ? 'var(--accent-red)' : 'var(--text-secondary)';
+        }
+    }
+    window.renderGridBtn = renderGridBtn;
+
+    // ============================================================
+    // Ctrl+C/X/V 扩展（tools.js 已有，补充 UI 部分）
+    // ============================================================
+    // Ctrl+D 复制
+    SmartProposal.tools.copy = function() {
+        var ids = SmartProposal.tools.getSelectedIds();
+        if (ids.length === 0) return;
+        // 保存到剪贴板（共享 tools.js 的内部函数）
+        try {
+            var clip = ids.map(function(id) {
+                return JSON.parse(JSON.stringify(SmartProposal.model.getShapeById(id)));
+            });
+            window.__spClipboard = clip;
+        } catch(e) {}
+        showToast('已复制 ' + ids.length + ' 个图形');
+    };
+
+    SmartProposal.tools.paste = function() {
+        var clip = window.__spClipboard;
+        if (!clip || clip.length === 0) { showToast('剪贴板为空'); return; }
+        SmartProposal.model.pushState();
+        var newIds = [];
+        clip.forEach(function(s) {
+            // 直接创建新图形，不依赖原始图形是否存在
+            var ns = SmartProposal.model.createShape(s.type, s.x + s.width / 2 + 30, s.y + s.height / 2 + 30, s.width, s.height);
+            if (ns) {
+                if (s.text) SmartProposal.model.updateShape(ns.id, { text: s.text });
+                if (s.textStyle) SmartProposal.model.updateShape(ns.id, { textStyle: Object.assign({}, s.textStyle) });
+                if (s.style) SmartProposal.model.updateShape(ns.id, { style: Object.assign({}, s.style) });
+                newIds.push(ns.id);
+            }
+        });
+        SmartProposal.tools.selectShape(null, false);
+        newIds.forEach(function(id) { SmartProposal.tools.selectShape(id, true); });
+        showToast('已粘贴 ' + newIds.length + ' 个图形');
+    };
+
+    SmartProposal.tools.deleteSelected = function() {
+        deleteSelected();
+    };
+
+    SmartProposal.tools.undo = function() { SmartProposal.model.undo(); updateUndoRedoBtn(); };
+    SmartProposal.tools.redo = function() { SmartProposal.model.redo(); updateUndoRedoBtn(); };
+
+    SmartProposal.tools.bringToFront = function() {
+        var ids = SmartProposal.tools.getSelectedIds();
+        ids.forEach(function(id) { SmartProposal.model.bringToFront(id); });
+        SmartProposal.model.pushState();
+    };
+
+    SmartProposal.tools.sendToBack = function() {
+        var ids = SmartProposal.tools.getSelectedIds();
+        ids.forEach(function(id) { SmartProposal.model.sendToBack(id); });
+        SmartProposal.model.pushState();
+    };
+
+    // ============================================================
+    // align 模块（基础对齐算法）
+    // ============================================================
+    SmartProposal.align = {
+        alignSelected: function(type) {
+            var ids = SmartProposal.tools.getSelectedIds();
+            if (ids.length < 2) { showToast('请选择 2 个以上图形'); return; }
+            var shapes = ids.map(function(id) { return SmartProposal.model.getShapeById(id); });
+            var xs = shapes.map(function(s) { return s.x; });
+            var ys = shapes.map(function(s) { return s.y; });
+            var x2s = shapes.map(function(s) { return s.x + s.width; });
+            var y2s = shapes.map(function(s) { return s.y + s.height; });
+            var mids = shapes.map(function(s) { return s.x + s.width / 2; });
+            var midsY = shapes.map(function(s) { return s.y + s.height / 2; });
+
+            SmartProposal.model.pushState();
+            var ref;
+            if (type === 'left') {
+                ref = Math.min.apply(null, xs);
+                shapes.forEach(function(s) { SmartProposal.model.updateShape(s.id, { x: ref }); });
+            } else if (type === 'center') {
+                ref = (Math.min.apply(null, xs) + Math.max.apply(null, x2s)) / 2;
+                shapes.forEach(function(s) { SmartProposal.model.updateShape(s.id, { x: ref - s.width / 2 }); });
+            } else if (type === 'right') {
+                ref = Math.max.apply(null, x2s);
+                shapes.forEach(function(s) { SmartProposal.model.updateShape(s.id, { x: ref - s.width }); });
+            } else if (type === 'top') {
+                ref = Math.min.apply(null, ys);
+                shapes.forEach(function(s) { SmartProposal.model.updateShape(s.id, { y: ref }); });
+            } else if (type === 'middle') {
+                ref = (Math.min.apply(null, ys) + Math.max.apply(null, y2s)) / 2;
+                shapes.forEach(function(s) { SmartProposal.model.updateShape(s.id, { y: ref - s.height / 2 }); });
+            } else if (type === 'bottom') {
+                ref = Math.max.apply(null, y2s);
+                shapes.forEach(function(s) { SmartProposal.model.updateShape(s.id, { y: ref - s.height }); });
+            }
+            showToast('已' + type + '对齐');
+        }
+    };
+
+    // ============================================================
+    // Ctrl+数字键重置视图
+    // ============================================================
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === '0') {
+            e.preventDefault();
+            SmartProposal.model.resetViewBox();
+        }
+    });
+
+    // ============================================================
+    // 右键菜单（补充 ctx-menu 显示）
+    // ============================================================
+    var _ctxMenuIds = [];
+    SmartProposal.model.on('shapeDeleted', function() {
+        document.getElementById('ctx-menu').classList.remove('show');
+    });
+
+    // 当工具选择改变时也清空选择
+    window.switchTool = switchTool;
+    window.updateShapeProp = updateShapeProp;
+    window.setFillColor = setFillColor;
+    window.setStrokeColor = setStrokeColor;
+    window.updateTextProp = updateTextProp;
+    window.updateTextStyle = updateTextStyle;
+    window.deleteSelected = deleteSelected;
+    window.toggleExportMenu = toggleExportMenu;
+    window.doExport = doExport;
+    window.doImport = doImport;
+    window.processNL = processNL;
+    window.setNLTpl = setNLTpl;
+    window.closeTextEditor = closeTextEditor;
+    window.applyTextEditor = applyTextEditor;
+    window.ctxBringToFront = ctxBringToFront;
+    window.ctxSendToBack = ctxSendToBack;
+    window.ctxDuplicate = ctxDuplicate;
+    window.ctxDelete = ctxDelete;
+    window.ctxCopyStyle = ctxCopyStyle;
+    window.ctxPasteStyle = ctxPasteStyle;
+
+})();
+</script>
+</body>
+</html>
