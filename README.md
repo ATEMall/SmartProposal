@@ -1,145 +1,135 @@
-# SmartProposal — ATEMall 智能图表编辑器
+# SmartProposal
 
-一款面向工控/ADAS工程师的在线 SVG 图表编辑器，支持流程图、思维导图、循环图、组织架构图、对比图等5类图表，具备画笔涂鸦、连接线、自然语言生成等专业功能。
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![HTML](https://img.shields.io/badge/HTML5-E34F26.svg?logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS](https://img.shields.io/badge/CSS3-1572B6.svg?logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E.svg?logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![GitHub Stars](https://img.shields.io/github/stars/ATEMall/SmartProposal?style=social)](https://github.com/ATEMall/SmartProposal)
+[![ATEMall](https://img.shields.io/badge/Platform-ATEMall-orange.svg)](https://github.com/ATEMall)
 
-基于 ATEMall 平台（[atemall-ai.com](https://atemall-ai.com)），采用 ATEMall 红白品牌配色。
+一个智能化的项目提案生成工具，帮助你快速创建专业的项目提案文档。纯前端实现，无需后端服务，打开即用。
+
+## 在线 Demo
+
+> 在线 Demo 即将上线，敬请期待！
+
+[![Demo](https://img.shields.io/badge/Demo-即将上线-lightgrey.svg)](https://github.com/ATEMall/SmartProposal)
 
 ## 功能特性
 
-### 图表类型
-- **流程图**：支持开始/结束/处理/判断/数据/子流程等标准符号
-- **思维导图**：放射状布局，中心节点 + 分支节点
-- **循环图**：闭合环形连接，如 PDCA 循环
-- **组织架构图**：树形两级结构
-- **对比图**：水平并排对比布局
-
-### 编辑工具
-- **基础图形**：矩形、圆角矩形、圆形/椭圆、菱形、三角形、六边形、平行四边形
-- **连接线**：7种类型（直线/曲线/折线/直箭头/曲箭头/折箭头/点线箭头）
-- **画笔涂鸦**：8种颜色 + 5档粗细
-- **橡皮擦**：4档大小，支持撤销
-- **文本编辑**：双击图形弹出编辑框，支持字号/颜色/粗体/斜体/下划线
-
-### 交互功能
-- 框选、多选、拖拽移动
-- 撤销/重做（无限步数）
-- 复制/粘贴/剪切（Ctrl+C/V/X）
-- 层级操作：置顶/置底/上移/下移
-- 6种对齐工具：左/中/右/顶/垂直居中/底
-- 格式复制/粘贴（样式刷）
-- 方向键微调位置（Shift 加速）
-- 右键菜单
-- 缩放与画布平移
-
-### 自然语言生成（NL）
-- 输入自然语言描述，自动生成图表
-- 支持多种输入格式：箭头分隔、逗号分隔、步骤描述、数量提示
-- 内置8个模板按钮（流程图/决策/思维导图/循环/PDCA/组织架构/对比/自定义）
-- 每个模板附带完整示例文本
-
-### 导入/导出
-- 导出 PNG / SVG / JSON
-- 导入 JSON 恢复编辑
-- localStorage 30秒自动保存 + 启动恢复
-
-## 技术架构
-
-```
-SmartProposal/
-├── index_v2.0.html          # 主入口（1343行），UI布局与事件绑定
-├── assets/
-│   ├── js/
-│   │   ├── model.js         # 数据层（696行），shapes/connectors管理、撤销重做、序列化
-│   │   ├── renderer.js      # 渲染层（711行），SVG DOM响应式更新
-│   │   └── tools.js         # 交互层（817行），mouse/touch事件、工具状态机
-│   └── css/
-│       └── base.css         # 样式（939行），ATEMall红白配色、CSS变量
-├── archive/                 # 历史版本归档
-│   └── SmartProposal_v1.0-v2.0_old_versions.zip
-└── history.md               # 版本变更记录
-```
-
-- **架构模式**：MVC 分离（Model / Renderer / Tools）
-- **运行方式**：纯前端，双击 `index_v2.0.html` 即可在浏览器中直接打开，无需构建或服务器
-- **技术栈**：原生 JavaScript（IIFE 模块化）+ SVG + CSS3
-- **连接点编号规则**：0=上、1=右、2=下、3=左
+- **智能模板** — 内置多种行业提案模板，一键套用
+- **在线编辑** — 所见即所得的富文本编辑器
+- **导出 PDF** — 一键导出精美 PDF 文档
+- **数据持久化** — 本地存储，刷新不丢失
+- **响应式设计** — 适配桌面和移动端
+- **无需后端** — 纯前端实现，零部署成本
 
 ## 快速开始
 
-1. 克隆仓库
-```bash
-git clone https://github.com/ATEMall/SmartProposal.git
-cd SmartProposal
-```
+### 直接使用
 
-2. 在浏览器中打开
-```
-直接双击 index_v2.0.html
-```
-或通过本地服务器：
+1. Clone 本仓库
+   ```bash
+   git clone https://github.com/ATEMall/SmartProposal.git
+   ```
+2. 用浏览器打开 `index.html` 即可使用
+
+### 本地服务器（推荐）
+
 ```bash
+# 使用 Python 简易服务器
+python -m http.server 8080
+
+# 或使用 Node.js
 npx serve .
-# 访问 http://localhost:3000
 ```
 
-3. 开始使用
-- 左侧面板选择图形/连接线工具
-- 在画布上点击/拖拽创建图形
-- 使用连接线工具连接图形的连接点
-- 双击图形编辑文本
-- 点击「NL生成」按钮通过自然语言生成图表
+然后访问 `http://localhost:8080`
 
-## 使用说明
+## 使用示例
 
-### 创建图表
-1. 从左侧面板点击所需图形（矩形、菱形等）
-2. 在画布上拖拽绘制
-3. 双击图形输入文本
+### 创建新提案
 
-### 连接图形
-1. 选择「连接线」工具
-2. 点击起始图形的连接点（圆形标记）
-3. 移动鼠标到目标图形的连接点并点击
-4. 连接线自动创建
+1. 打开应用后，选择「新建提案」
+2. 选择一个模板（如：项目方案、技术评审、测试计划）
+3. 填写各章节内容
+4. 预览并导出 PDF
 
-### 自然语言生成
-1. 点击底部「NL生成」按钮
-2. 在对话框中选择模板或直接输入描述
-3. 点击「生成」按钮，图表自动生成到画布
+### 自定义模板
 
-### 导出
-1. 点击「导出」按钮
-2. 选择格式：PNG / SVG / JSON
-3. 文件自动下载
+```javascript
+// 在 templates.js 中添加自定义模板
+const customTemplate = {
+  name: "EMB测试方案",
+  sections: [
+    { title: "测试目标", type: "richtext" },
+    { title: "测试环境", type: "table" },
+    { title: "测试用例", type: "list" },
+    { title: "风险评估", type: "richtext" }
+  ]
+};
+```
 
-### 快捷键
-| 快捷键 | 功能 |
-|--------|------|
-| Ctrl+Z | 撤销 |
-| Ctrl+Y / Ctrl+Shift+Z | 重做 |
-| Ctrl+C | 复制 |
-| Ctrl+V | 粘贴 |
-| Ctrl+X | 剪切 |
-| Delete / Backspace | 删除选中 |
-| 方向键 | 微调位置 |
-| Shift+方向键 | 快速微调 |
-| Escape | 取消当前操作 |
+### 与团队协作
 
-## 版本历史
+SmartProposal 支持通过导出 JSON 文件与团队成员共享提案草稿：
 
-详见 [history.md](history.md)
+1. 点击「导出」→ 选择 JSON 格式
+2. 将 JSON 文件分享给团队成员
+3. 团队成员通过「导入」加载草稿继续编辑
 
-| 版本 | 日期 | 说明 |
-|------|------|------|
-| v1.0 | 2026-05-11 | 初始版本，基础SVG编辑器 |
-| v1.1 | 2026-05-11 | 修复JS语法错误和函数作用域 |
-| v1.2 | 2026-05-12 | 自然语言生成流程图 |
-| v1.3 | 2026-05-12 | 修复NL生成节点标签丢失 |
-| v1.4 | 2026-05-13 | 画笔设置面板 + 橡皮擦 |
-| v2.0 | 2026-05-14 | MVC架构重构，模块化分离 |
-| v2.0.1 | 2026-05-15 | Bug修复与功能增强 |
-| v2.0.2 | 2026-05-24 | 属性面板重构，连接预览修复，NL增强 |
+## 截图
+
+> 截图即将补充
+
+| 提案编辑界面 | PDF 导出预览 |
+|-------------|-------------|
+| ![编辑界面](docs/screenshot_editor.png) | ![PDF预览](docs/screenshot_pdf.png) |
+
+## 项目结构
+
+```
+SmartProposal/
+├── index.html          # 入口页面
+├── css/                # 样式文件
+├── js/                 # JavaScript 逻辑
+│   ├── app.js          # 主应用逻辑
+│   ├── templates.js    # 模板定义
+│   └── export.js       # PDF 导出
+├── assets/             # 静态资源
+├── docs/               # 文档与截图
+└── README.md
+```
+
+## 技术栈
+
+| 技术 | 用途 |
+|------|------|
+| HTML5 | 页面结构 |
+| CSS3 | 样式与动画 |
+| Vanilla JS | 核心逻辑 |
+| html2pdf.js | PDF 导出 |
+| localStorage | 数据持久化 |
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+1. Fork 本仓库
+2. 创建功能分支 (`git checkout -b feature/new-template`)
+3. 提交更改 (`git commit -m 'Add new template'`)
+4. 推送到分支 (`git push origin feature/new-template`)
+5. 发起 Pull Request
 
 ## 许可证
 
-MIT License
+本项目基于 [MIT License](LICENSE) 开源。
+
+---
+
+## 🔗 更多资源
+
+- 🤖 [ATEMall AI知识库](https://atemall-ai.com) — 汽车测试工程师的AI助手
+- 💬 免费使用AI问答，覆盖 HIL / CAN / UDS / EMB 测试领域
+- 📋 注册即可获取完整测试模板和DBC文件库
+- ⭐ 如果这个工具对你有帮助，欢迎 Star 支持我们！
