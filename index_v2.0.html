@@ -761,6 +761,13 @@
     function closeTextEditor() {
         document.getElementById('text-editor-overlay').classList.remove('show');
         _editingShapeId = null;
+        // 重置拖拽位置
+        var box = document.querySelector('.sp-text-editor-box');
+        if (box) {
+            box.style.transform = '';
+            box.dataset.dx = '0';
+            box.dataset.dy = '0';
+        }
     }
 
     function applyTextEditor() {
@@ -777,6 +784,35 @@
             closeTextEditor();
             document.getElementById('ctx-menu').classList.remove('show');
         }
+    });
+
+    // 文本编辑器拖拽
+    var _editorDrag = { dragging: false, startX: 0, startY: 0, dx: 0, dy: 0 };
+    var _editorBox = document.querySelector('.sp-text-editor-box');
+    if (_editorBox) {
+        var _editorTitle = _editorBox.querySelector('h3');
+        if (_editorTitle) {
+            _editorTitle.addEventListener('mousedown', function(e) {
+                if (e.button !== 0) return;
+                _editorDrag.dragging = true;
+                _editorDrag.startX = e.clientX;
+                _editorDrag.startY = e.clientY;
+                _editorDrag.dx = parseFloat(_editorBox.dataset.dx || 0);
+                _editorDrag.dy = parseFloat(_editorBox.dataset.dy || 0);
+                e.preventDefault();
+            });
+        }
+    }
+    document.addEventListener('mousemove', function(e) {
+        if (!_editorDrag.dragging || !_editorBox) return;
+        var nx = _editorDrag.dx + (e.clientX - _editorDrag.startX);
+        var ny = _editorDrag.dy + (e.clientY - _editorDrag.startY);
+        _editorBox.style.transform = 'translate(' + nx + 'px, ' + ny + 'px)';
+        _editorBox.dataset.dx = nx;
+        _editorBox.dataset.dy = ny;
+    });
+    document.addEventListener('mouseup', function() {
+        _editorDrag.dragging = false;
     });
 
     // ============================================================

@@ -814,6 +814,7 @@ body {
     min-width: 300px;
     position: relative;
     z-index: 1;
+    transform: translate(0px, 0px);
 }
 
 .sp-text-editor-box h3 {
@@ -821,6 +822,9 @@ body {
     font-weight: 600;
     margin-bottom: 12px;
     color: var(--text-primary);
+    cursor: move;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .sp-text-editor-box textarea {

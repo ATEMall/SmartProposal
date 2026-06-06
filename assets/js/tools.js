@@ -636,6 +636,12 @@
         var key = e.key;
         var ctrl = e.ctrlKey || e.metaKey;
 
+        // 文本编辑器打开时，忽略所有形状快捷键
+        var editorOverlay = document.getElementById('text-editor-overlay');
+        if (editorOverlay && editorOverlay.classList.contains('show')) {
+            return;
+        }
+
         // ESC：取消选择 + 清除连接预览
         if (key === 'Escape') {
             clearSelection();
