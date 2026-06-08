@@ -266,21 +266,6 @@
                 </div>
             </div>
 
-            <!-- 系统框图 -->
-            <div class="sp-panel-section">
-                <div class="sp-panel-title">系统框图</div>
-                <div class="sp-shapes-grid">
-                    <button class="sp-tool-btn" data-tool="sysblock" onclick="switchTool('sysblock')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="4"/><line x1="2" y1="10" x2="22" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>
-                        系统块
-                    </button>
-                    <button class="sp-tool-btn" data-tool="busbar" onclick="switchTool('busbar')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="9" width="22" height="6" rx="2"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/></svg>
-                        总线
-                    </button>
-                </div>
-            </div>
-
             <!-- 连接线 -->
             <div class="sp-panel-section">
                 <div class="sp-panel-title">连接线</div>
@@ -313,7 +298,6 @@
                         <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="数据流：数据采集，数据清洗，数据分析，数据展示">数据流</button>
                         <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="决策流程：开始，需求评审，是否通过，开发实施，方案驳回，重新提交">决策流程</button>
                         <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="PDCA循环：计划，执行，检查，改进">PDCA循环</button>
-                        <button class="sp-nl-template-btn" onclick="setNLTpl(this)" data-example="系统框图：[总线]CAN总线 | [控制器]主控制器:核心处理单元 | [输入]传感器模块:信号采集 | [处理]计算单元:数据处理 | [输出]执行器模块:驱动控制 | 总线->主控制器 | 主控制器->传感器模块 | 主控制器->计算单元 | 计算单元->执行器模块">系统框图</button>
                     </div>
                 </div>
                 <button class="sp-btn sp-btn--primary" onclick="processNL()" style="padding:6px 14px; font-size:13px; flex-shrink:0;">生成</button>
@@ -1141,167 +1125,6 @@
         });
     }
 
-    // 生成系统框图
-    // 输入格式（两种）：
-    // 1. 模板格式: "[总线]总线名 | [类型]模块名:副标题 | 源->目标 | ..."
-    // 2. 简单格式: "系统框图：模块A，模块B，模块C"
-    function _nlGenSysBlock(text) {
-        SmartProposal.model.pushState();
-
-        // ---- 颜色主题映射 ----
-        var colorMap = {
-            '总线': { fill: '#bfdbfe', stroke: '#3b82f6', textFill: '#1e40af' },
-            'bus':  { fill: '#bfdbfe', stroke: '#3b82f6', textFill: '#1e40af' },
-            '控制器': { fill: '#e9d5ff', stroke: '#8b5cf6', textFill: '#5b21b6' },
-            'ctrl':    { fill: '#e9d5ff', stroke: '#8b5cf6', textFill: '#5b21b6' },
-            '输入': { fill: '#dcfce7', stroke: '#22c55e', textFill: '#14532d' },
-            'in':   { fill: '#dcfce7', stroke: '#22c55e', textFill: '#14532d' },
-            '传感器': { fill: '#dcfce7', stroke: '#22c55e', textFill: '#14532d' },
-            '输出': { fill: '#fee2e2', stroke: '#ef4444', textFill: '#7f1d1d' },
-            'out':  { fill: '#fee2e2', stroke: '#ef4444', textFill: '#7f1d1d' },
-            '执行器': { fill: '#fee2e2', stroke: '#ef4444', textFill: '#7f1d1d' },
-            '处理': { fill: '#fef3c7', stroke: '#f59e0b', textFill: '#78350f' },
-            'proc': { fill: '#fef3c7', stroke: '#f59e0b', textFill: '#78350f' },
-            '电源': { fill: '#ffedd5', stroke: '#f97316', textFill: '#7c2d12' },
-            '通信': { fill: '#cffafe', stroke: '#06b6d4', textFill: '#164e63' },
-            'comm': { fill: '#cffafe', stroke: '#06b6d4', textFill: '#164e63' },
-            'default': { fill: '#f3f4f6', stroke: '#6b7280', textFill: '#1f2937' }
-        };
-
-        function getColor(typeStr) {
-            if (!typeStr) return colorMap['default'];
-            var k = typeStr.trim();
-            for (var key in colorMap) {
-                if (k.indexOf(key) !== -1) return colorMap[key];
-            }
-            return colorMap['default'];
-        }
-
-        // 判断是否是带 | 的模板格式
-        var segments = text.split('|').map(function(s) { return s.trim(); }).filter(Boolean);
-        // 移除前缀 "系统框图：" 或 "系统框图:"
-        segments[0] = segments[0].replace(/^系统框图[：:]\s*/i, '');
-
-        var moduleMap = {};    // name -> shapeId
-        var busId = null;
-
-        // ---- 解析模块定义 ----
-        var moduleDefs = [];
-        var connDefs = [];
-
-        segments.forEach(function(seg) {
-            // 连接关系：A->B 或 A→B
-            if (/->|→/.test(seg) && !/^\[/.test(seg)) {
-                connDefs.push(seg);
-                return;
-            }
-            // 模块定义：[类型]名称:副标题
-            var blockMatch = seg.match(/^\[([^\]]+)\]\s*(.+)/);
-            if (blockMatch) {
-                var typeStr = blockMatch[1];
-                var rest = blockMatch[2];
-                var colonIdx = rest.indexOf(':');
-                var title = colonIdx !== -1 ? rest.slice(0, colonIdx).trim() : rest.trim();
-                var subtitle = colonIdx !== -1 ? rest.slice(colonIdx + 1).trim() : '';
-                moduleDefs.push({ typeStr: typeStr, title: title, subtitle: subtitle });
-            } else if (seg) {
-                // 简单模块名
-                var parts = seg.split(/[,，]/).map(function(p) { return p.trim(); }).filter(Boolean);
-                parts.forEach(function(p) {
-                    moduleDefs.push({ typeStr: '', title: p, subtitle: '' });
-                });
-            }
-        });
-
-        // 如果没有解析出模块，尝试简单格式
-        if (moduleDefs.length === 0) {
-            var cleaned = text.replace(/^系统框图[：:]\s*/i, '');
-            var parts = cleaned.split(/[,，|]/).map(function(p) { return p.trim(); }).filter(Boolean);
-            parts.forEach(function(p) {
-                moduleDefs.push({ typeStr: '', title: p, subtitle: '' });
-            });
-        }
-
-        // ---- 布局：总线在顶部，其他模块分列 ----
-        var busNodes = moduleDefs.filter(function(m) { return /总线|bus/i.test(m.typeStr); });
-        var otherNodes = moduleDefs.filter(function(m) { return !/总线|bus/i.test(m.typeStr); });
-
-        var startX = 100, startY = 80;
-        var canvasW = 1200;
-
-        // 总线：全宽横条
-        busNodes.forEach(function(m) {
-            var c = getColor(m.typeStr);
-            var busW = Math.min(canvasW - 200, otherNodes.length * 200 + 200);
-            var busX = startX + (canvasW - 200 - busW) / 2;
-            var shape = SmartProposal.model.createShape('busbar', busX, startY, busW, 40);
-            SmartProposal.model.updateShape(shape.id, {
-                text: m.title,
-                style: { fill: c.fill, stroke: c.stroke, strokeWidth: 2 },
-                textStyle: { fill: c.textFill, fontSize: 13, fontWeight: '600' }
-            });
-            moduleMap[m.title] = shape.id;
-            if (!busId) busId = shape.id;
-        });
-
-        // 其他模块：分列布局
-        var colW = 200, rowH = 110, margin = 40;
-        var moduleY = busNodes.length > 0 ? startY + 120 : startY;
-
-        // 按类型分组
-        var groups = {};
-        otherNodes.forEach(function(m) {
-            var key = m.typeStr || 'default';
-            if (!groups[key]) groups[key] = [];
-            groups[key].push(m);
-        });
-
-        var groupKeys = Object.keys(groups);
-        var totalGroups = groupKeys.length;
-        var totalW = totalGroups * (colW + margin);
-        var groupStartX = Math.max(startX, (canvasW - totalW) / 2 + startX / 2);
-
-        groupKeys.forEach(function(gk, gi) {
-            var gx = groupStartX + gi * (colW + margin);
-            var groupItems = groups[gk];
-            var c = getColor(gk);
-
-            groupItems.forEach(function(m, mi) {
-                var my = moduleY + mi * rowH;
-                var shape = SmartProposal.model.createShape('sysblock', gx, my, colW - 20, 80);
-                SmartProposal.model.updateShape(shape.id, {
-                    text: m.subtitle ? m.title + '\n' + m.subtitle : m.title,
-                    style: { fill: c.fill, stroke: c.stroke, strokeWidth: 2 },
-                    textStyle: { fill: c.textFill }
-                });
-                moduleMap[m.title] = shape.id;
-            });
-        });
-
-        // ---- 生成连接关系 ----
-        // 默认：总线→所有非总线第一行模块
-        if (busId && connDefs.length === 0) {
-            groupKeys.forEach(function(gk) {
-                var firstItem = groups[gk][0];
-                if (firstItem && moduleMap[firstItem.title]) {
-                    SmartProposal.model.createConnector(busId, moduleMap[firstItem.title], 2, 0, 'straight');
-                }
-            });
-        }
-
-        // 解析显式连接关系
-        connDefs.forEach(function(cd) {
-            var parts = cd.split(/->|→/).map(function(p) { return p.trim(); });
-            if (parts.length >= 2) {
-                var srcId = moduleMap[parts[0]];
-                var tgtId = moduleMap[parts[1]];
-                if (srcId && tgtId) {
-                    SmartProposal.model.createConnector(srcId, tgtId, 2, 0, 'straight');
-                }
-            }
-        });
-    }
-
     // 主入口
     function processNL() {
         var input = document.getElementById('nl-input').value.trim();
@@ -1318,10 +1141,9 @@
                 var text = input;
 
                 // ---- 检测图表类型 ----
-                var isSysBlock = /系统框图|系统图|系统架构图|block\s*diagram|\[总线\]|\[控制器\]|\[输入\]|\[输出\]|\[处理\]|\[传感器\]|\[执行器\]/.test(text);
                 var isMind = /思维|脑图|mind|主题|分支/.test(text);
                 var isCycle = /循环|PDCA|pdca|迭代|轮回|周期|闭环/.test(text);
-                var isOrg = /组织|架构|汇报|下级|部门|树形|上下级/.test(text) && !isSysBlock;
+                var isOrg = /组织|架构|汇报|下级|部门|树形|上下级/.test(text);
                 var isCompare = /比较|对比|VS|vs|优劣|区别|差异/.test(text);
                 var isFlow = /流程|步骤|阶段|流水|管道|pipeline|过程|环节|数据流/.test(text);
                 var hasDecision = /判断|是否|检查|验证|决策|条件/.test(text);
@@ -1330,9 +1152,7 @@
                 var parsedNodes = _nlParseNodes(text);
                 var countHint = _nlExtractCount(text);
 
-                if (isSysBlock) {
-                    _nlGenSysBlock(text);
-                } else if (isMind) {
+                if (isMind) {
                     if (parsedNodes && parsedNodes.length >= 2) {
                         _nlGenMind(parsedNodes[0], parsedNodes.slice(1));
                     } else {

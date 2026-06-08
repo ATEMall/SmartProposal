@@ -91,6 +91,9 @@
         flowchart_decision:{ tag: 'polygon', hasText: true, hasFill: true, defaultW: 100, defaultH: 70  },
         flowchart_data:   { tag: 'polygon', hasText: true, hasFill: true, defaultW: 120, defaultH: 60  },
         flowchart_document:{ tag: 'polygon', hasText: true, hasFill: true, defaultW: 120, defaultH: 70  },
+        // 系统框图专用
+        sysblock:    { tag: 'sysblock',  hasText: true,  hasFill: true,  defaultW: 160, defaultH: 80  },
+        busbar:      { tag: 'busbar',    hasText: true,  hasFill: true,  defaultW: 480, defaultH: 36  },
         // 连接线
         line: { tag: 'line', hasText: false, hasFill: false, defaultW: 100, defaultH: 2 }
     };

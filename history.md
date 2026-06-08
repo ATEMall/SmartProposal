@@ -1,5 +1,19 @@
 # SmartProposal_ATE 版本历史
 
+## v2.0.3 — 文本编辑器 Bug 修复（2026-06-06）
+- **时间**：2026-06-06
+- **文件**：`assets/js/tools.js` + `assets/css/base.css` + `index_v2.0.html`
+- **副本**：`index_v2.0_20260608_stable.html`（备份于 2026-06-08）
+- **变更**：
+  - **修复 Backspace 误删图形**（tools.js）：文本编辑器打开时按 Backspace/Delete 会触发图形删除快捷键；在 `onKeyDown` 开头增加 `text-editor-overlay.show` 可见性检查，编辑器打开时直接 return
+  - **文本编辑器拖拽功能**（base.css + index_v2.0.html）：标题栏 `cursor: move` + `user-select: none`；document 级 mousemove 监听实现 `transform: translate(dx, dy)` 拖拽；关闭编辑器时自动重置位置
+- **GitHub**：已推送至 https://github.com/ATEMall/SmartProposal（commit 03359aa）
+- **验证**：Playwright 自动化测试通过 ✅
+
+---
+
+## v2.0.4 — 系统框图功能（2026-06-08）
+
 ## v1.0 — 初始版本
 - **时间**：2026-05-11
 - **文件**：`index.html`（初始）

@@ -203,6 +203,14 @@
             el.setAttribute('font-size', shape.textStyle?.fontSize || 14);
             el.setAttribute('text-anchor', 'middle');
             el.setAttribute('dominant-baseline', 'central');
+        } else if (def.tag === 'sysblock' || def.tag === 'busbar') {
+            // 系统框图：用 <g> 容器包裹圆角矩形 + 文本（renderer 只创建底层矩形，文本由 renderSysblockText 处理）
+            el = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            el.setAttribute('x', shape.x);
+            el.setAttribute('y', shape.y);
+            el.setAttribute('width', shape.width);
+            el.setAttribute('height', shape.height);
+            el.setAttribute('rx', def.tag === 'busbar' ? 4 : 12);
         }
 
         if (!el) return;
@@ -251,6 +259,13 @@
 
         if (!shape.text && shape.text !== 0) return;
 
+        // sysblock / busbar: 支持 title\nsubtitle 双行（副标题较小）
+        var def = model.SHAPE_TYPES[shape.type] || model.SHAPE_TYPES.rect;
+        if (def.tag === 'sysblock' || def.tag === 'busbar') {
+            renderSysblockText(shape, def.tag === 'busbar');
+            return;
+        }
+
         var textStyle = shape.textStyle || {};
         var txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         txt.setAttribute('data-parent', shape.id);
@@ -291,6 +306,62 @@
 
         mainLayer.appendChild(txt);
         textEls[shape.id] = txt;
+    }
+
+    // sysblock / busbar 专用双行文本渲染
+    function renderSysblockText(shape, isBusbar) {
+        var x = shape.x + shape.width / 2;
+        var cy = shape.y + shape.height / 2;
+        var lines = (shape.text || '').split('\n');
+        var title = lines[0] || '';
+        var subtitle = lines[1] || '';
+
+        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('data-parent', shape.id);
+        g.setAttribute('data-type', 'text');
+        g.classList.add('sp-text');
+
+        if (!subtitle || isBusbar) {
+            // 单行或总线：居中显示
+            var txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            txt.setAttribute('x', x);
+            txt.setAttribute('y', cy);
+            txt.setAttribute('text-anchor', 'middle');
+            txt.setAttribute('dominant-baseline', 'central');
+            txt.setAttribute('font-size', isBusbar ? 13 : 15);
+            txt.setAttribute('font-weight', '600');
+            txt.setAttribute('fill', (shape.textStyle && shape.textStyle.fill) || '#1a1a1a');
+            txt.textContent = title;
+            g.appendChild(txt);
+        } else {
+            // 双行：标题 + 副标题
+            var titleY = cy - 9;
+            var subY = cy + 12;
+
+            var t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            t1.setAttribute('x', x);
+            t1.setAttribute('y', titleY);
+            t1.setAttribute('text-anchor', 'middle');
+            t1.setAttribute('dominant-baseline', 'central');
+            t1.setAttribute('font-size', 14);
+            t1.setAttribute('font-weight', '700');
+            t1.setAttribute('fill', (shape.textStyle && shape.textStyle.fill) || '#1a1a1a');
+            t1.textContent = title;
+            g.appendChild(t1);
+
+            var t2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            t2.setAttribute('x', x);
+            t2.setAttribute('y', subY);
+            t2.setAttribute('text-anchor', 'middle');
+            t2.setAttribute('dominant-baseline', 'central');
+            t2.setAttribute('font-size', 11);
+            t2.setAttribute('fill', (shape.textStyle && shape.textStyle.fill) || '#6b7280');
+            t2.textContent = subtitle;
+            g.appendChild(t2);
+        }
+
+        mainLayer.appendChild(g);
+        textEls[shape.id] = g;
     }
 
     function renderConnectionPoints(shape) {
@@ -351,6 +422,11 @@
         } else if (def.tag === 'text') {
             el.setAttribute('x', shape.x + shape.width / 2);
             el.setAttribute('y', shape.y + shape.height / 2);
+        } else if (def.tag === 'sysblock' || def.tag === 'busbar') {
+            el.setAttribute('x', shape.x);
+            el.setAttribute('y', shape.y);
+            el.setAttribute('width', shape.width);
+            el.setAttribute('height', shape.height);
         }
 
         applyShapeStyle(el, shape);
